@@ -12,7 +12,7 @@
             "offbeatwp-cli.php"
         ],
         "psr-4": { 
-            "OffbeatCli\\": "src/" 
+            "OffbeatCLI\\": "src/" 
         }
     },
     "require": {
