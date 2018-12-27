@@ -1,0 +1,16 @@
+{
+    "name": "offbeatwp/wp-cli-offbeatwp",
+    "description": "",
+    "type": "wp-cli-package",
+    "homepage": "https://github.com/offbeatwp/wp-cli-offbeatwp",
+    "license": "MIT",
+    "authors": [],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "files": [ "offbeatwp-cli.php" ]
+    },
+    "require": {
+        "wp-cli/wp-cli": "2.1.0"
+    }
+}
