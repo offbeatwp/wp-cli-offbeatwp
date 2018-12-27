@@ -8,7 +8,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
-        "files": [ "offbeatwp-cli.php" ]
+        "files": [ "offbeatwp-cli.php" ],
+        "psr-4": [ "OffbeatCli", "src/" ]
     },
     "require": {
         "wp-cli/wp-cli": "2.1.0"
