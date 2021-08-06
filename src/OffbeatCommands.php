@@ -7,7 +7,7 @@ use WP_CLI;
 use WP_CLI\ExitException;
 use WP_CLI_Command;
 
-class Commands extends WP_CLI_Command
+class OffbeatCommands extends WP_CLI_Command
 {
 	/**
 	 * Create fresh offbeat theme
@@ -124,13 +124,16 @@ class Commands extends WP_CLI_Command
 	 * @subcommand make-postmodel
 	 * @throws ExitException
 	 */
+	public const ARG_POST_TYPE = 'post_type';
+
+	/** @throws ExitException */
 	public function makePostModel($args, $assocArgs): void
 	{
-		$posttype = $assocArgs['post_type'] ?? null;
+		$posttype = $assocArgs[self::ARG_POST_TYPE] ?? null;
 		$name = $this->getFilteredName($args);
 
 		if (empty($posttype)) {
-			WP_CLI::error("Please define a posttype with --posttype=\"\"");
+			WP_CLI::error("Please define a posttype with --" . self::ARG_POST_TYPE . "=\"\"");
 			exit;
 		}
 
@@ -342,9 +345,6 @@ class Commands extends WP_CLI_Command
 	 * Make module
 	 *
 	 * @subcommand make-module
-	 * @throws ExitException
-	 * @throws ExitException
-	 * @throws ExitException
 	 * @throws ExitException
 	 */
 	public function makeModule($args): void

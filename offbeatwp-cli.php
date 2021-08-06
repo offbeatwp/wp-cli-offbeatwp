@@ -11,7 +11,7 @@ if (!class_exists('WP_CLI')) {
 }
 
 try {
-	WP_CLI::add_command('offbeatwp', OffbeatCLI\Commands::class);
+	WP_CLI::add_command('offbeatwp', OffbeatCLI\OffbeatCommands::class);
 } catch (Exception $e) {
 
 }
