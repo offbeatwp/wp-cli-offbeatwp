@@ -57,12 +57,12 @@ class Commands extends WP_CLI_Command
 	}
 
 	/** @throws ExitException */
-	private function getServiceName(array $args): string
+	private function getFilteredName(array $args): string
 	{
 		$name = $args[0] ?? null;
 
 		if (empty($name)) {
-			WP_CLI::error("Please define a name for your service");
+			WP_CLI::error("Please define a name");
 			exit;
 		}
 
@@ -87,7 +87,7 @@ class Commands extends WP_CLI_Command
 	 */
 	public function makeService($args): void
 	{
-		$name = $this->getServiceName($args);
+		$name = $this->getFilteredName($args);
 		$directory = get_template_directory() . '/app/Services/';
 
 		if (!is_dir($directory)) {
@@ -127,22 +127,7 @@ class Commands extends WP_CLI_Command
 	public function makePostModel($args, $assocArgs): void
 	{
 		$posttype = $assocArgs['post_type'] ?? null;
-		$name = $args[0] ?? null;
-
-		if (empty($name)) {
-			WP_CLI::error("Please define a name for your service");
-			exit;
-		}
-
-		if (preg_match('/[^a-zA-Z0-9]/', $name)) {
-			WP_CLI::error("Name contains not supported characters");
-			exit;
-		}
-
-		if (preg_match('/^\d/', $name)) {
-			WP_CLI::error("Name can not start with a number");
-			exit;
-		}
+		$name = $this->getFilteredName($args);
 
 		if (empty($posttype)) {
 			WP_CLI::error("Please define a posttype with --posttype=\"\"");
@@ -208,10 +193,9 @@ class Commands extends WP_CLI_Command
 	public function makeTermModel($args, $assocArgs): void
 	{
 		$name = $args[0] ?? null;
-		$taxonomy = $assocArgs['taxonomy'] ?? null;
 
 		if (empty($name)) {
-			WP_CLI::error("Please define a name for your service");
+			WP_CLI::error("Please define a name");
 			exit;
 		}
 
@@ -225,6 +209,7 @@ class Commands extends WP_CLI_Command
 			exit;
 		}
 
+		$taxonomy = $assocArgs['taxonomy'] ?? null;
 		if (empty($taxonomy)) {
 			WP_CLI::error("Please define a taxonomy with --taxonomy=\"\"");
 			exit;
@@ -244,7 +229,7 @@ class Commands extends WP_CLI_Command
 			$modulePath = get_template_directory() . '/modules/' . $module . '/';
 
 			if (preg_match('/[^a-zA-Z0-9]/', $module) || preg_match('/^\d/', $module) || !is_dir($modulePath)) {
-				WP_CLI::error("Module does not exists");
+				WP_CLI::error("Module does not exist");
 				exit;
 			}
 
@@ -290,7 +275,7 @@ class Commands extends WP_CLI_Command
 		$name = $args[0] ?? null;
 
 		if (empty($name)) {
-			WP_CLI::error("Please define a name for your service");
+			WP_CLI::error("Please define a name");
 			exit;
 		}
 
@@ -364,24 +349,7 @@ class Commands extends WP_CLI_Command
 	 */
 	public function makeModule($args): void
 	{
-		$name = $args[0] ?? null;
-
-		if (empty($name)) {
-			WP_CLI::error("Please define a name for your module");
-			exit;
-		}
-
-		if (preg_match('/[^a-zA-Z0-9]/', $name)) {
-			WP_CLI::error("Name contains not supported characters");
-			exit;
-		}
-
-		if (preg_match('/^\d/', $name)) {
-			WP_CLI::error("Name can not start with a number");
-			exit;
-		}
-
-		$name = ucfirst($name);
+		$name = $this->getFilteredName($args);
 		$directory = get_template_directory() . '/modules/' . $name;
 
 		if (is_dir($directory)) {
@@ -425,11 +393,6 @@ class Commands extends WP_CLI_Command
 	 *
 	 * @subcommand make-component
 	 * @throws ExitException
-	 * @throws ExitException
-	 * @throws ExitException
-	 * @throws ExitException
-	 * @throws ExitException
-	 * @throws ExitException
 	 */
 	public function makeComponent($args, $assocArgs): void
 	{
@@ -437,7 +400,7 @@ class Commands extends WP_CLI_Command
 		$supports = $assocArgs['supports'] ?? null;
 
 		if (empty($name)) {
-			WP_CLI::error("Please define a name for your component");
+			WP_CLI::error("Please define a name");
 			exit;
 		}
 
@@ -451,12 +414,13 @@ class Commands extends WP_CLI_Command
 			exit;
 		}
 
+		$name = ucfirst($name);
+
 		if (preg_match('/[^a-zA-Z0-9 ,]/', $supports)) {
 			WP_CLI::error("Supports contains not valid charaters");
 			exit;
 		}
 
-		$name = ucfirst($name);
 		$classname = implode('', array_map('ucfirst', explode(' ', $name)));
 
 		$directory = get_template_directory() . "/components/{$classname}/";
