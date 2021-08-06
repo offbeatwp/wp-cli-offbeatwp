@@ -9,13 +9,16 @@ use WP_CLI_Command;
 
 class OffbeatCommands extends WP_CLI_Command
 {
+	private const ARG_FORCE = 'force';
+	public const ARG_POST = 'post_type';
+	public const ARG_TAX = 'taxonomy';
 	/**
 	 * Create fresh offbeat theme
 	 *
 	 * @subcommand init-theme
 	 * @throws ExitException
 	 */
-	public function initTheme($args, $assocArgs): void
+	public function initTheme(?array $args, ?array $assocArgs): void
 	{
 		if (!isset($args[0])) {
 			WP_CLI::error('Define the slug for your theme');
@@ -30,12 +33,12 @@ class OffbeatCommands extends WP_CLI_Command
 		$themeSlug = $args[0];
 		$newThemeDirectory = get_theme_root() . "/{$themeSlug}";
 
-		if (!isset($assocArgs['force']) && is_dir($newThemeDirectory)) {
+		if (!isset($assocArgs[self::ARG_FORCE]) && is_dir($newThemeDirectory)) {
 			WP_CLI::error("Folder ({$newThemeDirectory}) already exists");
 			exit;
 		}
 
-		if (isset($assocArgs['force'])) {
+		if (isset($assocArgs[self::ARG_FORCE])) {
 			exec("rm -rf {$newThemeDirectory}");
 		}
 
@@ -56,29 +59,6 @@ class OffbeatCommands extends WP_CLI_Command
 		WP_CLI::success('Done');
 	}
 
-	/** @throws ExitException */
-	private function getFilteredName(array $args): string
-	{
-		$name = $args[0] ?? null;
-
-		if (empty($name)) {
-			WP_CLI::error("Please define a name");
-			exit;
-		}
-
-		if (preg_match('/[^a-zA-Z0-9]/', $name)) {
-			WP_CLI::error("Name contains not supported characters");
-			exit;
-		}
-
-		if (preg_match('/^\d/', $name)) {
-			WP_CLI::error("Name can not start with a number");
-			exit;
-		}
-
-		return ucfirst($name);
-	}
-
 	/**
 	 * Make service
 	 *
@@ -87,7 +67,7 @@ class OffbeatCommands extends WP_CLI_Command
 	 */
 	public function makeService($args): void
 	{
-		$name = $this->getFilteredName($args);
+		$name = OffbeatCommandHelper::filterName($args[0]);
 		$directory = get_template_directory() . '/app/Services/';
 
 		if (!is_dir($directory)) {
@@ -124,68 +104,10 @@ class OffbeatCommands extends WP_CLI_Command
 	 * @subcommand make-postmodel
 	 * @throws ExitException
 	 */
-	public const ARG_POST_TYPE = 'post_type';
-
-	/** @throws ExitException */
-	public function makePostModel($args, $assocArgs): void
+	public function makePostModel(?array $args, ?array $assocArgs): void
 	{
-		$posttype = $assocArgs[self::ARG_POST_TYPE] ?? null;
-		$name = $this->getFilteredName($args);
-
-		if (empty($posttype)) {
-			WP_CLI::error("Please define a posttype with --" . self::ARG_POST_TYPE . "=\"\"");
-			exit;
-		}
-
-		$name = ucfirst($name);
-		$directory = get_template_directory() . '/app/Models/';
-
-		$namespace = "App\Models";
-		$classname = $name . 'Model';
-
-		$path = $directory . $classname . '.php';
-
-		if (isset($assocArgs['module'])) {
-			$module = $assocArgs['module'];
-
-			$modulePath = get_template_directory() . '/modules/' . $module . '/';
-
-			if (preg_match('/[^a-zA-Z0-9]/', $module) || preg_match('/^\d/', $module) || !is_dir($modulePath)) {
-				WP_CLI::error("Module does not exists");
-				exit;
-			}
-
-			$directory = $modulePath . '/Models/';
-
-			if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
-				throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
-			}
-
-			$namespace = "Modules\\{$module}\Models";
-			$path = $directory . $classname . '.php';
-		}
-
-		if (!is_dir($directory)) {
-			WP_CLI::error("Path does not exists ({$path})");
-			exit;
-		}
-
-		if (file_exists($path)) {
-			WP_CLI::error("Model already exists");
-			exit;
-		}
-
-		$modelFile = fopen($path, 'wb');
-
-		$modelFileContent = file_get_contents(get_template_directory() . '/vendor/offbeatwp/framework/templates/PostModel.txt');
-		$modelFileContent = str_replace(['{{ namespace }}', '{{ classname }}', '{{ post_type }}'], [$namespace, $classname, $posttype], $modelFileContent);
-
-		fwrite($modelFile, $modelFileContent);
-		fclose($modelFile);
-
-		WP_CLI::success("Model created in {$path}\n");
+		OffbeatCommandHelper::makeCustomType($args, $assocArgs, self::ARG_POST);
 	}
-
 
 	/**
 	 * Make term model
@@ -193,78 +115,9 @@ class OffbeatCommands extends WP_CLI_Command
 	 * @subcommand make-termmodel
 	 * @throws ExitException
 	 */
-	public function makeTermModel($args, $assocArgs): void
+	public function makeTermModel(?array $args, ?array $assocArgs): void
 	{
-		$name = $args[0] ?? null;
-
-		if (empty($name)) {
-			WP_CLI::error("Please define a name");
-			exit;
-		}
-
-		if (preg_match('/[^a-zA-Z0-9]/', $name)) {
-			WP_CLI::error("Name contains not supported characters");
-			exit;
-		}
-
-		if (preg_match('/^\d/', $name)) {
-			WP_CLI::error("Name can not start with a number");
-			exit;
-		}
-
-		$taxonomy = $assocArgs['taxonomy'] ?? null;
-		if (empty($taxonomy)) {
-			WP_CLI::error("Please define a taxonomy with --taxonomy=\"\"");
-			exit;
-		}
-
-		$name = ucfirst($name);
-		$directory = get_template_directory() . '/app/Models/';
-
-		$namespace = "App\Models";
-		$classname = $name . 'Model';
-
-		$path = $directory . $classname . '.php';
-
-		if (isset($assocArgs['module'])) {
-			$module = $assocArgs['module'];
-
-			$modulePath = get_template_directory() . '/modules/' . $module . '/';
-
-			if (preg_match('/[^a-zA-Z0-9]/', $module) || preg_match('/^\d/', $module) || !is_dir($modulePath)) {
-				WP_CLI::error("Module does not exist");
-				exit;
-			}
-
-			$directory = $modulePath . '/Models/';
-
-			if (!is_dir($directory) && !mkdir($directory) && !is_dir($directory)) {
-				throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
-			}
-
-			$namespace = "Modules\\{$module}\Models";
-			$path = $directory . $classname . '.php';
-		}
-
-		if (!is_dir($directory)) {
-			WP_CLI::error("Path does not exists ({$path})");
-			exit;
-		}
-
-		if (file_exists($path)) {
-			WP_CLI::error("Model already exists");
-			exit;
-		}
-
-		$modelFile = fopen($path, 'wb');
-
-		$modelFileContent = file_get_contents(get_template_directory() . '/vendor/offbeatwp/framework/templates/TermModel.txt');
-		$modelFileContent = str_replace(['{{ namespace }}', '{{ classname }}', '{{ taxonomy }}'], [$namespace, $classname, $taxonomy], $modelFileContent);
-
-		fwrite($modelFile, $modelFileContent);
-		fclose($modelFile);
-
-		WP_CLI::success("Model created in {$path}\n");
+		OffbeatCommandHelper::makeCustomType($args, $assocArgs, self::ARG_TAX);
 	}
 
 	/**
@@ -273,26 +126,9 @@ class OffbeatCommands extends WP_CLI_Command
 	 * @subcommand make-controller
 	 * @throws ExitException
 	 */
-	public function makeController($args, $assocArgs): void
+	public function makeController(?array $args, ?array $assocArgs): void
 	{
-		$name = $args[0] ?? null;
-
-		if (empty($name)) {
-			WP_CLI::error("Please define a name");
-			exit;
-		}
-
-		if (preg_match('/[^a-zA-Z0-9]/', $name)) {
-			WP_CLI::error("Name contains not supported characters");
-			exit;
-		}
-
-		if (preg_match('/^\d/', $name)) {
-			WP_CLI::error("Name can not start with a number");
-			exit;
-		}
-
-		$name = ucfirst($name);
+		$name = OffbeatCommandHelper::filterName($args[0]);
 		$directory = get_template_directory() . '/app/Controllers/';
 
 		$namespace = "App\Controllers";
@@ -349,7 +185,7 @@ class OffbeatCommands extends WP_CLI_Command
 	 */
 	public function makeModule($args): void
 	{
-		$name = $this->getFilteredName($args);
+		$name = OffbeatCommandHelper::filterName($args[0]);
 		$directory = get_template_directory() . '/modules/' . $name;
 
 		if (is_dir($directory)) {
@@ -394,28 +230,11 @@ class OffbeatCommands extends WP_CLI_Command
 	 * @subcommand make-component
 	 * @throws ExitException
 	 */
-	public function makeComponent($args, $assocArgs): void
+	public function makeComponent(?array $args, ?array $assocArgs): void
 	{
-		$name = $args[0] ?? null;
+		$name = OffbeatCommandHelper::filterName($args[0]);
+
 		$supports = $assocArgs['supports'] ?? null;
-
-		if (empty($name)) {
-			WP_CLI::error("Please define a name");
-			exit;
-		}
-
-		if (preg_match('/[^a-zA-Z0-9 ]/', $name)) {
-			WP_CLI::error("Name contains not supported characters");
-			exit;
-		}
-
-		if (preg_match('/^\d/', $name)) {
-			WP_CLI::error("Name can not start with a number");
-			exit;
-		}
-
-		$name = ucfirst($name);
-
 		if (preg_match('/[^a-zA-Z0-9 ,]/', $supports)) {
 			WP_CLI::error("Supports contains not valid charaters");
 			exit;
@@ -472,10 +291,6 @@ class OffbeatCommands extends WP_CLI_Command
 			$supports = explode(',', $supports);
 			$supports = array_map('trim', $supports);
 			$supports = array_filter($supports);
-
-			if (!empty($supports)) {
-				$supports = '\'' . explode('\',\'', $supports) . '\'';
-			}
 		}
 
 		if (empty($supports)) {
