@@ -43,6 +43,11 @@ final class PackageHelper
             }
 
             foreach ($data as $file) {
+                if (!is_array($file) || empty($file['web_url']) || empty($file['name'])) {
+                    WP_CLI::log('Something is wrong here...');
+                    WP_CLI::error(json_encode($file));
+                }
+
                 $ch = curl_init($file['web_url'] . '/raw');
                 $fp = fopen($localFolderPath . $file['name'], 'wb');
 
