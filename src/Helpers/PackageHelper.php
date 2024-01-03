@@ -39,13 +39,13 @@ final class PackageHelper
             $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
 
             if (!is_array($data)) {
-                WP_CLI::error('Invalid response: ' . gettype($data) . (is_scalar($data) ? ' ' . $data : ''));
+                WP_CLI::error('Invalid JSON response: ' . gettype($data) . (is_scalar($data) ? ' ' . $data : ''));
             }
 
             foreach ($data as $file) {
                 if (!is_array($file) || empty($file['web_url']) || empty($file['name'])) {
                     WP_CLI::log('Something is wrong here...');
-                    WP_CLI::error(json_encode($file));
+                    WP_CLI::error('Invalid API response: ' . json_encode($file));
                 }
 
                 $ch = curl_init($file['web_url'] . '/raw');
@@ -62,9 +62,8 @@ final class PackageHelper
             }
 
             WP_CLI::success("Folder downloaded successfully.");
-            echo "Folder downloaded successfully.";
         } else {
-            WP_CLI::error("Error fetching folder contents.");
+            WP_CLI::error("Error fetching folder contents, response is empty or malformed.");
         }
 
 //        if (!mkdir($destination) && !is_dir($destination)) {
