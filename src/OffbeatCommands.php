@@ -9,7 +9,7 @@ use WP_CLI_Command;
 final class OffbeatCommands extends WP_CLI_Command
 {
     /** @throws \WP_CLI\ExitException */
-    public function package(array $args): void
+    public function package(array $args, array $assocArgs): void
     {
         if (count($args) < 2) {
             WP_CLI::error('Not enough arguments were provided. Expected ACTION and PACKAGE args. EG: wp offbeatwp fetch hafa/nice-day');
@@ -33,6 +33,6 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Invalid package name. Did you mean ' . basename($packageDir));
         }
 
-        PackageHelper::fetch($packageGroup, $packageDir);
+        PackageHelper::fetch($packageGroup, $packageDir, $assocArgs);
     }
 }
