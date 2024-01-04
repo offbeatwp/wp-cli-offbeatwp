@@ -28,7 +28,7 @@ final class GitHelper
         exec('git pull origin main');
 
         // Move from temp to src
-        rename($tempDir . '/' . $name, getcwd() . '/src');
+        rename($tempDir . '/' . $name, '/');
 
         // Delete leftovers
         rmdir($tempDir);
