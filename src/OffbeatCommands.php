@@ -2,6 +2,7 @@
 
 namespace OffbeatCLI;
 
+use OffbeatCLI\Helpers\CurlHelper;
 use OffbeatCLI\Helpers\PackageHelper;
 use WP_CLI;
 use WP_CLI_Command;
@@ -42,14 +43,14 @@ final class OffbeatCommands extends WP_CLI_Command
     public function token(array $args): void
     {
         $action = strtolower($args[0] ?? '');
-        $token = $args[1] ?? '';
 
-        // Validate arguments
-        if (!in_array($action, ['set', 'clear'], true)) {
+        // Validate action
+        if (!in_array($action, ['set', 'clear', 'check'], true)) {
             WP_CLI::error('Invalid argument. Expected either "set" or "clear"');
         }
 
-        $assignment = 'TOKEN=';
+        // Validate arguments
+        $token = $args[1] ?? '';
         $expectedArgs = ($action === 'set') ? 2 : 1;
         $argCount = count($args);
 
@@ -57,7 +58,15 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Invalid number of arguments provided. Got ' . $argCount . ' but expected ' . $expectedArgs);
         }
 
+        // Check action
+        if ($action === 'check') {
+            CurlHelper::getPrivateToken(); // Do NOT echo the token
+            exit;
+        }
+
         // Add token to assignment
+        $assignment = 'TOKEN=';
+
         if ($action === 'set') {
             if (strlen($token) < 20) {
                 WP_CLI::error('Invalid token provided');
