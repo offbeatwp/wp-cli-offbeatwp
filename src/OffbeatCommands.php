@@ -64,8 +64,11 @@ final class OffbeatCommands extends WP_CLI_Command
             exit;
         }
 
+        putenv('TEST123=PINO');
+        WP_CLI::log(getenv('TEST123'));
+
         // Add token to assignment
-        $assignment = 'TOKEN=';
+        $assignment = 'GITLAB_TOKEN=';
 
         if ($action === 'set') {
             if (strlen($token) < 20) {

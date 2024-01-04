@@ -50,7 +50,7 @@ final class CurlHelper
 
     public static function getPrivateToken(): string
     {
-        $token = getenv('TOKEN') ?: '';
+        $token = getenv('GITLAB_TOKEN') ?: '';
 
         if ($token) {
             WP_CLI::log('Using personal access token from ENV');
