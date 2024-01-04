@@ -18,7 +18,7 @@ final class PackageHelper
             if ($file->type === 'tree') {
                 self::fetch($file->path);
             } else {
-                CurlHelper::downloadFile(self::REPO_FILES . urlencode($file->path) . '/raw?ref=main', $file->path);
+                CurlHelper::downloadFile(self::REPO_FILES . urlencode($file->path), $file->path);
             }
         }
     }

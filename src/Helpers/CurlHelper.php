@@ -48,7 +48,7 @@ final class CurlHelper
 
     public static function downloadFile(string $url, string $path): void
     {
-        $path = getcwd() . '/' . $path;
+        $path = getcwd() . '/' . $path . '/raw?ref=main';
         $ch = curl_init($url);
         $fp = fopen($path, 'wb');
 
