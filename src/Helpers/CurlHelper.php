@@ -13,7 +13,7 @@ final class CurlHelper
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $token = self::getPrivateToken();
+        $token = EnvHelper::getToken();
         if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $token]);
         }
