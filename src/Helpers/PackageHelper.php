@@ -13,7 +13,6 @@ final class PackageHelper
     {
         // Make a cURL request to the GitLab API
         $json = CurlHelper::curlJson(self::REPO . 'tree?ref=main&path=' . $name);
-        $file = 'http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/files/';
 
         if ($json) {
             WP_CLI::log($json);
@@ -29,7 +28,7 @@ final class PackageHelper
             }
 
             foreach ($data as $file) {
-                CurlHelper::curlFile('http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/files/google%2Fapp%2FServices%2FGoogle%2FGoogleService.php?ref=main', '/temp');
+                CurlHelper::curlFile(self::REPO . 'files/google%2Fapp%2FServices%2FGoogle%2FGoogleService.php/raw?ref=main', '/temp');
                 break;
 //                if (is_array($file) && isset($file['path'], $file['name'])) {
 //                    CurlHelper::curlFile('files/' . $file['path'], 'temp/' . $file['name']);

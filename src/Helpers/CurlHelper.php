@@ -24,9 +24,9 @@ final class CurlHelper
         return $response ?: null;
     }
 
-    public static function curlFile(string $path, string $toDir): void
+    public static function curlFile(string $url, string $toDir): void
     {
-        $ch = curl_init($path);
+        $ch = curl_init($url);
         $fp = fopen($toDir, 'wb');
 
         curl_setopt($ch, CURLOPT_FILE, $fp);
@@ -42,9 +42,9 @@ final class CurlHelper
         fclose($fp);
 
         if ($success) {
-            WP_CLI::log("File downloaded: {$path}");
+            WP_CLI::log("File downloaded: {$url}");
         } else {
-            WP_CLI::error("Failed to download file: {$path}");
+            WP_CLI::error("Failed to download file: {$url}");
         }
     }
 }
