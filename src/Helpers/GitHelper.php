@@ -63,6 +63,7 @@ final class GitHelper
                     WP_CLI::log($sourcePath . ' -> ' . $targetPath);
 
                     if (file_exists($targetPath)) {
+                        unlink($sourcePath);
                         WP_CLI::log("Skipped: {$file}");
                     } elseif (rename($sourcePath, $targetPath)) {
                         WP_CLI::log("Moved: {$file}");
