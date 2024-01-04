@@ -26,7 +26,7 @@ final class ApiHelper
         }
     }
 
-    /** @return Generator|GitlabFile[] */
+    /** @return Generator<GitlabFile>|GitlabFile[] */
     private static function getTrees(string $path): Generator
     {
         $url = self::REPO_TREE . urlencode($path);
