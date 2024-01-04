@@ -7,11 +7,29 @@ use JsonException;
 use OffbeatCLI\Objects\GitlabFile;
 use WP_CLI;
 
-final class CurlHelper
+final class ApiHelper
 {
-    /** @return Generator|GitlabFile[] */
-    public static function getTrees(string $url): Generator
+    private const REPO_BASE = 'http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/';
+    private const REPO_TREE = self::REPO_BASE . 'tree?ref=main&path=';
+    private const REPO_FILES = self::REPO_BASE . 'files/';
+
+    public static function fetch(string $path): void
     {
+        WP_CLI::log('>>> ' . $path);
+
+        foreach (self::getTrees($path) as $file) {
+            if ($file->type === 'tree') {
+                self::fetch($file->path);
+            } else {
+                self::downloadFile($file->path);
+            }
+        }
+    }
+
+    /** @return Generator|GitlabFile[] */
+    private static function getTrees(string $path): Generator
+    {
+        $url = self::REPO_TREE . urlencode($path);
         WP_CLI::log('~ ' . $url);
 
         $ch = curl_init($url);
@@ -46,10 +64,13 @@ final class CurlHelper
         }
     }
 
-    public static function downloadFile(string $url, string $path): void
+    private static function downloadFile(string $path): void
     {
+        $url = self::REPO_FILES . urlencode($path) . '/raw?ref=main';
+        WP_CLI::log('>>> ' . $url);
+
         $path = getcwd() . '/' . $path;
-        $ch = curl_init($url . '/raw?ref=main');
+        $ch = curl_init($url);
         $fp = fopen($path, 'wb');
 
         if (!$fp) {

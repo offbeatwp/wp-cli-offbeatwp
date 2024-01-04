@@ -2,8 +2,8 @@
 
 namespace OffbeatCLI;
 
+use OffbeatCLI\Helpers\ApiHelper;
 use OffbeatCLI\Helpers\EnvHelper;
-use OffbeatCLI\Helpers\PackageHelper;
 use WP_CLI;
 use WP_CLI_Command;
 
@@ -37,7 +37,7 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Invalid package name and/or namcespace');
         }
 
-        PackageHelper::fetch($name);
+        ApiHelper::fetch($name);
     }
 
     /**
