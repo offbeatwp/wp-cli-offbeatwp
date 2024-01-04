@@ -48,12 +48,16 @@ final class CurlHelper
 
     public static function downloadFile(string $url, string $path): void
     {
+        $path = getcwd() . '/' . $path;
+        if (strpos($path, 'themes/') === false) {
+            WP_CLI::error("You should run this command in the project's theme folder.");
+        }
+
         $ch = curl_init($url);
-        $filename = getcwd() . $path;
-        $fp = fopen($filename, 'wb');
+        $fp = fopen($path, 'wb');
 
         if (!$fp) {
-            WP_CLI::error('Could not fopen: ' . $filename);
+            WP_CLI::error('Could not fopen: ' . $path);
         }
 
         curl_setopt($ch, CURLOPT_FILE, $fp);
@@ -69,7 +73,7 @@ final class CurlHelper
         fclose($fp);
 
         if ($success) {
-            WP_CLI::log("Downloaded: {$filename}");
+            WP_CLI::log("Downloaded: {$path}");
         } else {
             WP_CLI::error("Failed to download file at url: {$url}");
         }
