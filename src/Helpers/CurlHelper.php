@@ -6,8 +6,6 @@ use WP_CLI;
 
 final class CurlHelper
 {
-    public static string $token = '';
-
     public static function curlJson(string $url): ?string
     {
         WP_CLI::log($url);
@@ -15,8 +13,9 @@ final class CurlHelper
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        if (self::$token) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . self::$token]);
+        $token = getenv('TOKEN');
+        if ($token) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $token]);
         }
 
         $response = curl_exec($ch);
@@ -33,8 +32,9 @@ final class CurlHelper
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
-        if (self::$token) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . self::$token]);
+        $token = getenv('TOKEN');
+        if (getenv('TOKEN')) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $token]);
         }
 
         $success = curl_exec($ch);

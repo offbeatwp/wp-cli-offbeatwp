@@ -7,13 +7,9 @@ use WP_CLI;
 
 final class PackageHelper
 {
-    public static function fetch(string $namespace, string $name, array $assocArgs): void
+    public static function fetch(string $namespace, string $name): void
     {
         WP_CLI::log('Looking for: ' . $namespace . ' -> ' . $name);
-
-        if (!empty($assocArgs['token'])) {
-            CurlHelper::$token = $assocArgs['token'];
-        }
 
         // Make a cURL request to the GitLab API
         $json = CurlHelper::curlJson("http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/tree?ref=main&path={$name}");

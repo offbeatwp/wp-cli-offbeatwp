@@ -35,4 +35,19 @@ final class OffbeatCommands extends WP_CLI_Command
 
         PackageHelper::fetch($packageGroup, $packageDir, $assocArgs);
     }
+
+    public static function token(array $args): void
+    {
+        if (count($args) !== 1 || strlen($args[0]) < 20) {
+            WP_CLI::error('Invalid token provided.');
+        }
+
+        $result = putenv('TOKEN=' . $args[0]);
+
+        if ($result) {
+            WP_CLI::success('Saved token!');
+        } else {
+            WP_CLI::error('Failed to save token.');
+        }
+    }
 }
