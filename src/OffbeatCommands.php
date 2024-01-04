@@ -58,14 +58,14 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Invalid number of arguments provided. Got ' . $argCount . ' but expected ' . $expectedArgs);
         }
 
+        putenv('TEST123=PINO');
+        WP_CLI::log(getenv('TEST123'));
+
         // Check action
         if ($action === 'check') {
             CurlHelper::getPrivateToken(); // Do NOT echo the token
             exit;
         }
-
-        putenv('TEST123=PINO');
-        WP_CLI::log(getenv('TEST123'));
 
         // Add token to assignment
         $assignment = 'GITLAB_TOKEN=';
