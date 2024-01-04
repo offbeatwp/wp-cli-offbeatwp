@@ -46,7 +46,7 @@ final class CurlHelper
         fclose($fp);
 
         if ($success) {
-            WP_CLI::log("File downloaded: {$url}");
+            WP_CLI::log("File downloaded: {$url} -> {$toDir}");
         } else {
             WP_CLI::error("Failed to download file: {$url}");
         }
