@@ -2,13 +2,17 @@
 
 namespace OffbeatCLI\Helpers;
 
+use Generator;
+use JsonException;
+use OffbeatCLI\Objects\GitlabFile;
 use WP_CLI;
 
 final class CurlHelper
 {
-    public static function curlJson(string $url): ?string
+    /** @return Generator|GitlabFile[] */
+    public static function getTrees(string $url): Generator
     {
-        WP_CLI::log($url);
+        WP_CLI::log('~ ' . $url);
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -21,16 +25,35 @@ final class CurlHelper
         $response = curl_exec($ch);
         curl_close($ch);
 
-        return $response ?: null;
+        if (!$response) {
+            WP_CLI::error('Error fetching folder contents, response is empty or malformed.');
+            exit;
+        }
+
+        try {
+            $items = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            WP_CLI::error('JSON response could not be decoded: [' . $exception->getCode() .  '] ' . $exception->getMessage());
+            exit;
+        }
+
+        if (!is_array($items)) {
+            WP_CLI::error('Reponse cannot be decoded to an array.');
+        }
+
+        foreach ($items as $item) {
+            yield new GitlabFile($item);
+        }
     }
 
-    public static function curlFile(string $url, string $toDir): void
+    public static function downloadFile(string $url, string $path): void
     {
         $ch = curl_init($url);
-        $fp = fopen($toDir, 'wb');
+        $filename = getcwd() . $path;
+        $fp = fopen($filename, 'wb');
 
         if (!$fp) {
-            WP_CLI::error('Could not fopen: ' . $toDir);
+            WP_CLI::error('Could not fopen: ' . $filename);
         }
 
         curl_setopt($ch, CURLOPT_FILE, $fp);
@@ -46,9 +69,9 @@ final class CurlHelper
         fclose($fp);
 
         if ($success) {
-            WP_CLI::log("File downloaded: {$url} -> {$toDir}");
+            WP_CLI::log("Downloaded: {$filename}");
         } else {
-            WP_CLI::error("Failed to download file: {$url}");
+            WP_CLI::error("Failed to download file at url: {$url}");
         }
     }
 }

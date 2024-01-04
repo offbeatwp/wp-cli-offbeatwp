@@ -27,13 +27,13 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Package name must be the following format: {group}/{packagename}');
         }
 
-        [$packageGroup, $packageDir] = explode('/', $args[1]);
+        [$namespace, $name] = explode('/', $args[1]);
 
-        if (basename($packageGroup) !== $packageGroup || basename($packageDir) !== $packageDir) {
+        if (basename($namespace) !== $namespace || basename($name) !== $name) {
             WP_CLI::error('Invalid package name and/or namcespace');
         }
 
-        PackageHelper::fetch($packageGroup, $packageDir);
+        PackageHelper::fetch($name);
     }
 
     /**
