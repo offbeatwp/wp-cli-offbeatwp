@@ -54,6 +54,8 @@ final class GitHelper
                 $sourcePath = $sourceDir . '/' . $file;
                 $targetPath = $targetDir . '/' . $file;
 
+                WP_CLI::log($sourcePath . ' -> ' . $targetPath);
+
                 if (rename($sourcePath, $targetPath)) {
                     WP_CLI::log("Moved: {$file}");
                 } else {
