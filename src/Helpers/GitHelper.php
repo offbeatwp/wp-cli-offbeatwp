@@ -49,7 +49,7 @@ final class GitHelper
         }
 
         foreach ($files as $file) {
-            if ($file[0] === '.') {
+            if ($file[0] !== '.') {
                 $sourcePath = $sourceDir . '/' . $file;
                 $targetPath = $targetDir . '/' . $file;
 
