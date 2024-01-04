@@ -58,10 +58,6 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Invalid number of arguments provided. Got ' . $argCount . ' but expected ' . $expectedArgs);
         }
 
-        WP_CLI::log(getenv('TEST123') ?: '???');
-        putenv('TEST123=PINO');
-        WP_CLI::log(getenv('TEST123') ?: '???');
-
         // Check action
         if ($action === 'check') {
             EnvHelper::getToken(); // Do NOT echo the token
@@ -81,13 +77,6 @@ final class OffbeatCommands extends WP_CLI_Command
             $value = $token;
         }
 
-        // Write to env
-        $result = EnvHelper::setToken($value);
-
-        if ($result) {
-            WP_CLI::success('Token was saved successfully');
-        } else {
-            WP_CLI::error('Failed to save token');
-        }
+        EnvHelper::setToken($value);
     }
 }

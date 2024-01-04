@@ -6,11 +6,16 @@ use WP_CLI;
 
 final class EnvHelper
 {
+    private static ?array $env = null;
     private const TOKEN = 'GITLAB_TOKEN';
 
     public static function getToken(): string
     {
-        $token = getenv(self::TOKEN) ?: '';
+        if (EnvHelper::$env === null) {
+            self::$env = parse_ini_file('.env') ?: [];
+        }
+
+        $token = self::$env[self::TOKEN] ?: '';
 
         if ($token) {
             WP_CLI::log('Using personal access token from ENV');
@@ -21,8 +26,17 @@ final class EnvHelper
         return $token;
     }
 
-    public static function setToken(string $token): bool
+    public static function setToken(string $token): void
     {
-        return putenv(self::TOKEN . '=' . $token);
+        $envFile = fopen('.env', 'wb');
+
+        if ($envFile) {
+            fwrite($envFile, self::TOKEN . '=' . $token);
+            fclose($envFile);
+
+            WP_CLI::success('Updated token');
+        } else {
+            WP_CLI::error('Failed to update token');
+        }
     }
 }
