@@ -28,7 +28,7 @@ final class PackageHelper
             }
 
             foreach ($data as $file) {
-                CurlHelper::curlFile(self::REPO . 'files/google%2Fapp%2FServices%2FGoogle%2FGoogleService.php/raw?ref=main', '/temp');
+                CurlHelper::curlFile(self::REPO . 'files/google%2Fapp%2FServices%2FGoogle%2FGoogleService.php/raw?ref=main', __DIR__ . '/temp');
                 break;
 //                if (is_array($file) && isset($file['path'], $file['name'])) {
 //                    CurlHelper::curlFile('files/' . $file['path'], 'temp/' . $file['name']);

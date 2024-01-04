@@ -29,6 +29,10 @@ final class CurlHelper
         $ch = curl_init($url);
         $fp = fopen($toDir, 'wb');
 
+        if (!$fp) {
+            WP_CLI::error('Could not fopen: ' . $toDir);
+        }
+
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
