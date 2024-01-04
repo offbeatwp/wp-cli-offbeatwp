@@ -40,7 +40,7 @@ final class GitHelper
 
     /**
      * Moves content from one dir to another.<br>
-     * Any files whose name start with <b>.</b> are ignored.
+     * Any files whose name starts with <b>.</b> are ignored.
      */
     public static function moveDirContent(string $sourceDir, string $targetDir): void
     {
