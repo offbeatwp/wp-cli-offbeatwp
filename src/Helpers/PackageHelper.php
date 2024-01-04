@@ -7,10 +7,13 @@ use WP_CLI;
 
 final class PackageHelper
 {
+    private const REPO = 'http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/';
+
     public static function fetch(string $namespace, string $name): void
     {
         // Make a cURL request to the GitLab API
-        $json = CurlHelper::curlJson("http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/tree?ref=main&path={$name}");
+        $json = CurlHelper::curlJson(self::REPO . 'tree?ref=main&path=' . $name);
+        $file = 'http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/files/';
 
         if ($json) {
             WP_CLI::log($json);
@@ -26,11 +29,13 @@ final class PackageHelper
             }
 
             foreach ($data as $file) {
-                if (is_array($file) && isset($file['web_url'], $file['name'])) {
-                    CurlHelper::curlFile($file['web_url'] . '/raw', 'temp/' . $file['name']);
-                } else {
-                    WP_CLI::error('Unexpected response content: ' . json_encode($file));
-                }
+                CurlHelper::curlFile('http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/files/google%2Fapp%2FServices%2FGoogle%2FGoogleService.php?ref=main', '/temp');
+                break;
+//                if (is_array($file) && isset($file['path'], $file['name'])) {
+//                    CurlHelper::curlFile('files/' . $file['path'], 'temp/' . $file['name']);
+//                } else {
+//                    WP_CLI::error('Unexpected response content: ' . json_encode($file));
+//                }
             }
 
             WP_CLI::success('Folder downloaded successfully.');
