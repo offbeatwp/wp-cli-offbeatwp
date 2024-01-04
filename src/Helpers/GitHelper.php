@@ -57,12 +57,18 @@ final class GitHelper
                 $sourcePath = $sourceDir . '/' . $file;
                 $targetPath = $targetDir . '/' . $file;
 
-                WP_CLI::log($sourcePath . ' -> ' . $targetPath);
-
-                if (rename($sourcePath, $targetPath)) {
-                    WP_CLI::log("Moved: {$file}");
+                if (is_dir($sourcePath)) {
+                    self::moveDirContent($sourcePath, $targetPath);
                 } else {
-                    WP_CLI::error("Failed to move: {$file}");
+                    WP_CLI::log($sourcePath . ' -> ' . $targetPath);
+
+                    if (file_exists($targetPath)) {
+                        WP_CLI::log("Skipped: {$file}");
+                    } elseif (rename($sourcePath, $targetPath)) {
+                        WP_CLI::log("Moved: {$file}");
+                    } else {
+                        WP_CLI::error("Failed to move: {$file}");
+                    }
                 }
             }
         }
