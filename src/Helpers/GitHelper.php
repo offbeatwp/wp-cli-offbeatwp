@@ -36,7 +36,8 @@ final class GitHelper
 
         // Delete leftovers
         rmdir($tempDir . '/' . $name);
-        rmdir($tempDir);
+        unlink($tempDir . '/.gitignore');
+        self::removeDirectoryRecursively($tempDir . '/.git');
     }
 
     /**
@@ -81,5 +82,20 @@ final class GitHelper
                 }
             }
         }
+    }
+
+    private static function removeDirectoryRecursively(string $dir): bool
+    {
+        foreach (scandir($dir) as $file) {
+            if ($file !== '.' && $file !== '..' && $file[0] !== '/') {
+                if (is_dir("$dir/$file")) {
+                    self::removeDirectoryRecursively("$dir/$file");
+                } else {
+                    unlink("$dir/$file");
+                }
+            }
+        }
+
+        return rmdir($dir);
     }
 }
