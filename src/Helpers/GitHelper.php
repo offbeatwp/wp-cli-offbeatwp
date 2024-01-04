@@ -56,23 +56,17 @@ final class GitHelper
                 $targetPath = $targetDir . '/' . $file;
 
                 if (is_dir($sourcePath)) {
-                    // Directory handler
                     if (!file_exists($targetPath) && !mkdir($targetPath) && !is_dir($targetPath)) {
                         throw new RuntimeException('Directory "' . $targetPath . '" was not created');
                     }
 
                     self::moveDirContent($sourcePath, $targetPath);
+                } elseif (file_exists($targetPath)) {
+                    WP_CLI::log("Skipped: {$file}");
+                } elseif (rename($sourcePath, $targetPath)) {
+                    WP_CLI::log("Added: {$file}");
                 } else {
-                    // File handler
-                    WP_CLI::log($sourcePath . ' -> ' . $targetPath);
-
-                    if (file_exists($targetPath)) {
-                        WP_CLI::log("Skipped: {$file}");
-                    } elseif (rename($sourcePath, $targetPath)) {
-                        WP_CLI::log("Added: {$file}");
-                    } else {
-                        WP_CLI::error("Failed to move: {$file}");
-                    }
+                    WP_CLI::error("Failed to move: {$file}");
                 }
             }
         }
