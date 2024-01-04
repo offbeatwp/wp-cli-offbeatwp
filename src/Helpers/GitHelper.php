@@ -45,7 +45,6 @@ final class GitHelper
     public static function moveDirContent(string $sourceDir, string $targetDir): void
     {
         $files = scandir($sourceDir);
-        WP_CLI::log(json_encode($files));
 
         if (!$files) {
             WP_CLI::error('Failed to scan ' . $sourceDir);
@@ -70,7 +69,7 @@ final class GitHelper
                     if (file_exists($targetPath)) {
                         WP_CLI::log("Skipped: {$file}");
                     } elseif (rename($sourcePath, $targetPath)) {
-                        WP_CLI::log("Moved: {$file}");
+                        WP_CLI::log("Added: {$file}");
                     } else {
                         WP_CLI::error("Failed to move: {$file}");
                     }
