@@ -17,7 +17,7 @@ final class GitHelper
         exec("git clone --depth 1 --no-checkout {$repositoryUrl} {$tempDir}");
 
         if (!is_dir($tempDir) && !mkdir($tempDir) && !is_dir($tempDir)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $tempDir));
+            throw new RuntimeException('Directory "' . $tempDir .'" was not created');
         }
 
         chdir($tempDir);
@@ -58,8 +58,14 @@ final class GitHelper
                 $targetPath = $targetDir . '/' . $file;
 
                 if (is_dir($sourcePath)) {
+                    // Directory handler
+                    if (!file_exists($targetPath) && !mkdir($targetPath) && !is_dir($targetPath)) {
+                        throw new RuntimeException('Directory "' . $targetPath . '" was not created');
+                    }
+
                     self::moveDirContent($sourcePath, $targetPath);
                 } else {
+                    // File handler
                     WP_CLI::log($sourcePath . ' -> ' . $targetPath);
 
                     if (file_exists($targetPath)) {
