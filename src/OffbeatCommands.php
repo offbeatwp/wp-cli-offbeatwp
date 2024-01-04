@@ -70,6 +70,8 @@ final class OffbeatCommands extends WP_CLI_Command
         if ($action === 'set') {
             if (strlen($token) < 20) {
                 WP_CLI::error('Invalid token provided');
+            } else {
+                WP_CLI::log('Updating token...');
             }
 
             $assignment .= $token;
