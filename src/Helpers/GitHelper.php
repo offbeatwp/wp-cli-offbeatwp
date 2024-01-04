@@ -64,6 +64,8 @@ final class GitHelper
                     }
 
                     self::moveDirContent($sourcePath, $targetPath);
+
+                    rmdir($sourcePath);
                 } else {
                     // File handler
                     WP_CLI::log($sourcePath . ' -> ' . $targetPath);
