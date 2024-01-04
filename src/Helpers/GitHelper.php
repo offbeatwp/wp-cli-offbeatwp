@@ -44,13 +44,7 @@ final class GitHelper
      */
     public static function moveDirContent(string $sourceDir, string $targetDir): void
     {
-        $files = scandir($sourceDir);
-
-        if (!$files) {
-            WP_CLI::error('Failed to scan ' . $sourceDir);
-        }
-
-        foreach ($files as $file) {
+        foreach (scandir($sourceDir) as $file) {
             if ($file[0] !== '.') {
                 $sourcePath = $sourceDir . '/' . $file;
                 $targetPath = $targetDir . '/' . $file;
