@@ -2,12 +2,16 @@
 
 namespace OffbeatCLI\Helpers;
 
+use WP_CLI;
+
 final class CurlHelper
 {
     public static string $token = '';
 
     public static function curlJson(string $url): ?string
     {
+        WP_CLI::log($url);
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 

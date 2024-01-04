@@ -11,6 +11,10 @@ final class PackageHelper
     {
         WP_CLI::log('Looking for: ' . $namespace . ' -> ' . $name);
 
+        if (!empty($assocArgs['token'])) {
+            CurlHelper::$token = $assocArgs['token'];
+        }
+
         // Make a cURL request to the GitLab API
         $json = CurlHelper::curlJson("http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/tree?ref=main&path={$name}");
 
@@ -41,7 +45,7 @@ final class PackageHelper
 
                     WP_CLI::log("File downloaded: {$file['name']}");
                 } else {
-                    WP_CLI::log("Unexpected response content: " . json_encode($file));
+                    WP_CLI::error("Unexpected response content: " . json_encode($file));
                 }
             }
 
