@@ -2,63 +2,47 @@
 
 namespace OffbeatCLI\Helpers;
 
+use JsonException;
 use WP_CLI;
 
 final class PackageHelper
 {
-    public static function fetch(string $repository, string $packageDir, array $assocArgs): void
+    public static function fetch(string $namespace, string $name, array $assocArgs): void
     {
-        WP_CLI::log('Looking for: ' . $repository . ' -> ' . $packageDir);
-
-        if ($repository === 'vollegrond') {
-            $repository = 'offbeat-base-module-repo';
-        }
-
-        // Either username and accessToken from args or use defaults
-        $username = $assocArgs['name'] ?? 'raow';
-        $accessToken = $assocArgs['token'] ?? null;
-
-        // Specify the local destination folder on your server
-        $localFolderPath = '/path/on/server/where/to/save/';
-
-        // GitLab API URL for fetching the contents of a directory
-        $apiUrl = "http://git.raow.work:88/api/v4/projects/{$username}%2F{$repository}/repository/tree?ref=main&path={$packageDir}";
+        WP_CLI::log('Looking for: ' . $namespace . ' -> ' . $name);
 
         // Make a cURL request to the GitLab API
-        $ch = curl_init($apiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $json = CurlHelper::curlJson("http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/tree?ref=main&path={$name}");
 
-        if ($accessToken) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $accessToken]);
-        }
+        if ($json) {
+            WP_CLI::log($json);
 
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        if ($response && is_string($response)) {
-            $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+            try {
+                $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $exception) {
+                WP_CLI::error('JSON response could not be decoded: [' . $exception->getCode() .  '] ' . $exception->getMessage());
+            }
 
             if (!is_array($data)) {
-                WP_CLI::error('Invalid JSON response: ' . gettype($data) . (is_scalar($data) ? ' ' . $data : ''));
+                WP_CLI::error('JSON api response is not an array: ' . $json);
             }
 
             foreach ($data as $file) {
-                if (!is_array($file) || empty($file['web_url']) || empty($file['name'])) {
-                    WP_CLI::log('Something is wrong here...');
-                    WP_CLI::error('Invalid API response: ' . json_encode($file));
+                if (is_array($file) && isset($file['web_url'], $file['name'])) {
+                    $ch = curl_init($file['web_url'] . '/raw');
+                    $fp = fopen('temp/' . $file['name'], 'wb');
+
+                    curl_setopt($ch, CURLOPT_FILE, $fp);
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+
+                    curl_exec($ch);
+                    curl_close($ch);
+                    fclose($fp);
+
+                    WP_CLI::log("File downloaded: {$file['name']}");
+                } else {
+                    WP_CLI::log("Unexpected response content: " . json_encode($file));
                 }
-
-                $ch = curl_init($file['web_url'] . '/raw');
-                $fp = fopen($localFolderPath . $file['name'], 'wb');
-
-                curl_setopt($ch, CURLOPT_FILE, $fp);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-
-                curl_exec($ch);
-                curl_close($ch);
-                fclose($fp);
-
-                WP_CLI::log("File downloaded: {$file['name']}");
             }
 
             WP_CLI::success("Folder downloaded successfully.");
