@@ -70,10 +70,10 @@ final class GitHelper
     {
         foreach (scandir($dir) as $file) {
             if ($file !== '.' && $file !== '..' && $file[0] !== '/') {
-                if (is_dir("$dir/$file")) {
-                    self::removeDirectoryRecursively("$dir/$file");
+                if (is_dir($dir . '/' . $file)) {
+                    self::removeDirectoryRecursively($dir . '/' . $file);
                 } else {
-                    unlink("$dir/$file");
+                    unlink($dir . '/' . $file);
                 }
             }
         }
