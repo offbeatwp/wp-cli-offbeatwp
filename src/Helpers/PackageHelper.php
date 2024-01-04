@@ -13,13 +13,12 @@ final class PackageHelper
     public static function fetch(string $path)
     {
         WP_CLI::log('>>> ' . $path);
-        $encodedPath = urlencode($path);
 
-        foreach (CurlHelper::getTrees(self::REPO_TREE . $encodedPath) as $file) {
+        foreach (CurlHelper::getTrees(self::REPO_TREE . urlencode($path)) as $file) {
             if ($file->type === 'tree') {
                 self::fetch($file->path);
             } else {
-                CurlHelper::downloadFile(self::REPO_FILES . $encodedPath . '/raw?ref=main', $path . '/' . $file->name);
+                CurlHelper::downloadFile(self::REPO_FILES . urlencode($file->path) . '/raw?ref=main', $file->path);
             }
         }
     }
