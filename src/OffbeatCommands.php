@@ -23,6 +23,10 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Unknown action "' . esc_attr($args[0]) . '"');
         }
 
+        if (strpos(getcwd(), 'themes/') === false) {
+            WP_CLI::error("You should run this command in the project's theme folder.");
+        }
+
         if (substr_count($args[1], '/') !== 1) {
             WP_CLI::error('Package name must be the following format: {group}/{packagename}');
         }

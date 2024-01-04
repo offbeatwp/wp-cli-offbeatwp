@@ -49,10 +49,6 @@ final class CurlHelper
     public static function downloadFile(string $url, string $path): void
     {
         $path = getcwd() . '/' . $path;
-        if (strpos($path, 'themes/') === false) {
-            WP_CLI::error("You should run this command in the project's theme folder.");
-        }
-
         $ch = curl_init($url);
         $fp = fopen($path, 'wb');
 
