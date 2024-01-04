@@ -2,7 +2,7 @@
 
 namespace OffbeatCLI;
 
-use OffbeatCLI\Helpers\CurlHelper;
+use OffbeatCLI\Helpers\EnvHelper;
 use OffbeatCLI\Helpers\PackageHelper;
 use WP_CLI;
 use WP_CLI_Command;
@@ -58,17 +58,18 @@ final class OffbeatCommands extends WP_CLI_Command
             WP_CLI::error('Invalid number of arguments provided. Got ' . $argCount . ' but expected ' . $expectedArgs);
         }
 
+        WP_CLI::log(getenv('TEST123') ?: '???');
         putenv('TEST123=PINO');
-        WP_CLI::log(getenv('TEST123'));
+        WP_CLI::log(getenv('TEST123') ?: '???');
 
         // Check action
         if ($action === 'check') {
-            CurlHelper::getPrivateToken(); // Do NOT echo the token
+            EnvHelper::getToken(); // Do NOT echo the token
             exit;
         }
 
         // Add token to assignment
-        $assignment = 'GITLAB_TOKEN=';
+        $value = '';
 
         if ($action === 'set') {
             if (strlen($token) < 20) {
@@ -77,11 +78,11 @@ final class OffbeatCommands extends WP_CLI_Command
                 WP_CLI::log('Updating token...');
             }
 
-            $assignment .= $token;
+            $value = $token;
         }
 
         // Write to env
-        $result = putenv($assignment);
+        $result = EnvHelper::setToken($value);
 
         if ($result) {
             WP_CLI::success('Token was saved successfully');

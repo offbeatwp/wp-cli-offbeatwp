@@ -32,7 +32,7 @@ final class CurlHelper
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
-        $token = self::getPrivateToken();
+        $token = EnvHelper::getToken();
         if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $token]);
         }
@@ -46,18 +46,5 @@ final class CurlHelper
         } else {
             WP_CLI::error("Failed to download file: {$url}");
         }
-    }
-
-    public static function getPrivateToken(): string
-    {
-        $token = getenv('GITLAB_TOKEN') ?: '';
-
-        if ($token) {
-            WP_CLI::log('Using personal access token from ENV');
-        } else {
-            WP_CLI::log('Not using a personal access token. If needed, set one with `offbeatwp token set {YOUR_TOKEN}`');
-        }
-
-        return $token;
     }
 }
