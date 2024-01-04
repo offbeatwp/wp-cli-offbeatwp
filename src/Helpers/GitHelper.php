@@ -10,8 +10,9 @@ final class GitHelper
     public static function fetch(string $name): void
     {
         // Pull from git
+        $cwd = getcwd();
         $repositoryUrl = 'http://git.raow.work:88/raow/offbeat-base-module-repo.git';
-        $tempDir = getcwd() . '/temp';
+        $tempDir = $cwd . '/temp';
 
         exec("git clone --depth 1 --no-checkout {$repositoryUrl} {$tempDir}");
 
@@ -28,8 +29,10 @@ final class GitHelper
         exec('git read-tree -mu HEAD');
         exec('git pull origin main');
 
+        chdir($cwd);
+
         // Move from temp to src
-        self::moveDirContent($tempDir . '/' . $name, getcwd());
+        self::moveDirContent($tempDir . '/' . $name, $cwd);
 
         // Delete leftovers
         rmdir($tempDir . '/' . $name);
