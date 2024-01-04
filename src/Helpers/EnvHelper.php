@@ -6,8 +6,10 @@ use WP_CLI;
 
 final class EnvHelper
 {
-    private static ?array $env = null;
     private const TOKEN = 'GITLAB_TOKEN';
+
+    private static ?array $env = null;
+    private static bool $logTokenMsg = true;
 
     public static function getToken(): string
     {
@@ -21,10 +23,14 @@ final class EnvHelper
 
         $token = self::$env[self::TOKEN] ?? '';
 
-        if ($token) {
-            WP_CLI::log('Using personal access token from ENV');
-        } else {
-            WP_CLI::log('Not using a personal access token. If needed, set one with `offbeatwp token set {YOUR_TOKEN}`');
+        if (self::$logTokenMsg) {
+            if ($token) {
+                WP_CLI::log('Using personal access token from ENV');
+            } else {
+                WP_CLI::log('Not using a personal access token. If needed, set one with `offbeatwp token set {YOUR_TOKEN}`');
+            }
+
+            self::$logTokenMsg = false;
         }
 
         return $token;
