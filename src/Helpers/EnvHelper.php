@@ -12,10 +12,14 @@ final class EnvHelper
     public static function getToken(): string
     {
         if (EnvHelper::$env === null) {
-            self::$env = parse_ini_file('.env') ?: [];
+            if (file_exists('.env')) {
+                self::$env = parse_ini_file('.env') ?: [];
+            } else {
+                self::$env = [];
+            }
         }
 
-        $token = self::$env[self::TOKEN] ?: '';
+        $token = self::$env[self::TOKEN] ?? '';
 
         if ($token) {
             WP_CLI::log('Using personal access token from ENV');
@@ -28,6 +32,10 @@ final class EnvHelper
 
     public static function setToken(string $token): void
     {
+        if (!file_exists('.env')) {
+            file_put_contents('.env', '');
+        }
+
         $envFile = fopen('.env', 'wb');
 
         if ($envFile) {
