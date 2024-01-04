@@ -9,8 +9,6 @@ final class PackageHelper
 {
     public static function fetch(string $namespace, string $name): void
     {
-        WP_CLI::log('Looking for: ' . $namespace . ' -> ' . $name);
-
         // Make a cURL request to the GitLab API
         $json = CurlHelper::curlJson("http://git.raow.work:88/api/v4/projects/raow%2Foffbeat-base-module-repo/repository/tree?ref=main&path={$name}");
 
@@ -29,25 +27,15 @@ final class PackageHelper
 
             foreach ($data as $file) {
                 if (is_array($file) && isset($file['web_url'], $file['name'])) {
-                    $ch = curl_init($file['web_url'] . '/raw');
-                    $fp = fopen('temp/' . $file['name'], 'wb');
-
-                    curl_setopt($ch, CURLOPT_FILE, $fp);
-                    curl_setopt($ch, CURLOPT_HEADER, 0);
-
-                    curl_exec($ch);
-                    curl_close($ch);
-                    fclose($fp);
-
-                    WP_CLI::log("File downloaded: {$file['name']}");
+                    CurlHelper::curlFile($file['web_url'] . '/raw', 'temp/' . $file['name']);
                 } else {
-                    WP_CLI::error("Unexpected response content: " . json_encode($file));
+                    WP_CLI::error('Unexpected response content: ' . json_encode($file));
                 }
             }
 
-            WP_CLI::success("Folder downloaded successfully.");
+            WP_CLI::success('Folder downloaded successfully.');
         } else {
-            WP_CLI::error("Error fetching folder contents, response is empty or malformed.");
+            WP_CLI::error('Error fetching folder contents, response is empty or malformed.');
         }
 
 //        if (!mkdir($destination) && !is_dir($destination)) {

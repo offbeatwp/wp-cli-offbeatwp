@@ -13,7 +13,7 @@ final class CurlHelper
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $token = getenv('TOKEN');
+        $token = self::getPrivateToken();
         if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $token]);
         }
@@ -24,7 +24,7 @@ final class CurlHelper
         return $response ?: null;
     }
 
-    public static function curlFile(string $url, string $toDir): bool
+    public static function curlFile(string $url, string $toDir): void
     {
         $ch = curl_init($url);
         $fp = fopen($toDir, 'wb');
@@ -32,8 +32,8 @@ final class CurlHelper
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
-        $token = getenv('TOKEN');
-        if (getenv('TOKEN')) {
+        $token = self::getPrivateToken();
+        if ($token) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['PRIVATE-TOKEN: ' . $token]);
         }
 
@@ -41,6 +41,23 @@ final class CurlHelper
         curl_close($ch);
         fclose($fp);
 
-        return $success;
+        if ($success) {
+            WP_CLI::log("File downloaded: {$url}");
+        } else {
+            WP_CLI::error("Failed to download file: {$url}");
+        }
+    }
+
+    public static function getPrivateToken(): string
+    {
+        $token = getenv('TOKEN') ?: '';
+
+        if ($token) {
+            WP_CLI::log('Using personal access token from ENV');
+        } else {
+            WP_CLI::log('Not using a personal access token. If needed, set one with `offbeatwp token set {YOUR_TOKEN}`');
+        }
+
+        return $token;
     }
 }
