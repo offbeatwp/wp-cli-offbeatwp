@@ -28,15 +28,11 @@ final class OffbeatCommands extends WP_CLI_Command
 
         [$packageGroup, $packageDir] = explode('/', $args[1]);
 
-        if (basename($packageGroup) !== $packageGroup) {
-            WP_CLI::error('Invalid package group name. Did you mean ' . basename($packageGroup));
+        if (basename($packageGroup) !== $packageGroup || basename($packageDir) !== $packageDir) {
+            WP_CLI::error('Invalid package name and/or namcespace');
         }
 
-        if (basename($packageDir) !== $packageDir) {
-            WP_CLI::error('Invalid package name. Did you mean ' . basename($packageDir));
-        }
-
-        PackageHelper::fetch($packageGroup, $packageDir, []);
+        PackageHelper::fetch($packageGroup, $packageDir);
     }
 
     /**
@@ -45,36 +41,38 @@ final class OffbeatCommands extends WP_CLI_Command
      */
     public function token(array $args): void
     {
-        // Validate arguments
         $action = strtolower($args[0] ?? '');
+        $token = $args[1] ?? '';
 
-        if (in_array($action, ['set', 'clear'], true)) {
-            WP_CLI::error('Invalid argument. Expected either "set" or "clear".');
+        // Validate arguments
+        if (!in_array($action, ['set', 'clear'], true)) {
+            WP_CLI::error('Invalid argument. Expected either "set" or "clear"');
         }
 
         $assignment = 'TOKEN=';
         $expectedArgs = ($action === 'set') ? 2 : 1;
+        $argCount = count($args);
 
         if (count($args) !== $expectedArgs) {
-            WP_CLI::error('Invalid number of arguments provided.');
+            WP_CLI::error('Invalid number of arguments provided. Got ' . $argCount . ' but expected ' . $expectedArgs);
         }
 
         // Add token to assignment
         if ($action === 'set') {
-            if (strlen($args[1]) < 20) {
-                WP_CLI::error('Invalid token provided.');
+            if (strlen($token) < 20) {
+                WP_CLI::error('Invalid token provided');
             }
 
-            $assignment .= $args[1];
+            $assignment .= $token;
         }
 
         // Write to env
         $result = putenv($assignment);
 
         if ($result) {
-            WP_CLI::success('Saved token!');
+            WP_CLI::success('Token was saved successfully');
         } else {
-            WP_CLI::error('Failed to save token.');
+            WP_CLI::error('Failed to save token');
         }
     }
 }
