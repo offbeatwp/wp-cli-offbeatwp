@@ -5,7 +5,6 @@ namespace OffbeatCLI;
 use OffbeatCLI\Helpers\OffbeatScaffoldHelper;
 use RuntimeException;
 use WP_CLI;
-use WP_CLI\ExitException;
 use WP_CLI_Command;
 
 final class OffbeatScaffoldingCommands extends WP_CLI_Command
@@ -16,11 +15,12 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
 
     /**
      * Create fresh offbeat theme
+     * @param string[] $args
+     * @param string[] $assocArgs
      *
      * @subcommand init-theme
-     * @throws ExitException
      */
-    public function initTheme(?array $args, ?array $assocArgs): void
+    public function initTheme(array $args, array $assocArgs): void
     {
         if (!isset($args[0])) {
             WP_CLI::error('Define the slug for your theme');
@@ -62,10 +62,10 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
     }
 
     /**
-     * Make service
+     * Make a service
+     * @param string[] $args
      *
      * @subcommand make-service
-     * @throws ExitException
      */
     public function makeService($args): void
     {
@@ -81,7 +81,7 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
         $path = $directory . $classname . '.php';
 
         if (file_exists($path)) {
-            WP_CLI::error("Service already exists");
+            WP_CLI::error('Service already exists');
             exit;
         }
 
@@ -102,38 +102,41 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
 
     /**
      * Make post model
+     * @param string[] $args
+     * @param string[] $assocArgs
      *
      * @subcommand make-postmodel
-     * @throws ExitException
      */
-    public function makePostModel(?array $args, ?array $assocArgs): void
+    public function makePostModel(array $args, array $assocArgs): void
     {
         OffbeatScaffoldHelper::makeCustomType($args, $assocArgs, self::ARG_POST);
     }
 
     /**
      * Make term model
+     * @param string[] $args
+     * @param string[] $assocArgs
      *
      * @subcommand make-termmodel
-     * @throws ExitException
      */
-    public function makeTermModel(?array $args, ?array $assocArgs): void
+    public function makeTermModel(array $args, array $assocArgs): void
     {
         OffbeatScaffoldHelper::makeCustomType($args, $assocArgs, self::ARG_TAX);
     }
 
     /**
-     * Make controller
+     * Make a controller
+     * @param string[] $args
+     * @param string[] $assocArgs
      *
      * @subcommand make-controller
-     * @throws ExitException
      */
-    public function makeController(?array $args, ?array $assocArgs): void
+    public function makeController(array $args, array $assocArgs): void
     {
         $name = OffbeatScaffoldHelper::filterName($args[0]);
         $directory = get_template_directory() . '/app/Controllers/';
 
-        $namespace = "App\Controllers";
+        $namespace = 'App\Controllers';
         $classname = $name . 'Controller';
 
         $path = $directory . $classname . '.php';
@@ -144,7 +147,7 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
             $modulePath = get_template_directory() . '/modules/' . $module . '/';
 
             if (preg_match('/[^a-zA-Z0-9]/', $module) || preg_match('/^\d/', $module) || !is_dir($modulePath)) {
-                WP_CLI::error("Module does not exists");
+                WP_CLI::error('Module does not exists');
                 exit;
             }
 
@@ -164,7 +167,7 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
         }
 
         if (file_exists($path)) {
-            WP_CLI::error("Controller already exists");
+            WP_CLI::error('Controller already exists');
             exit;
         }
 
@@ -180,10 +183,10 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
     }
 
     /**
-     * Make module
+     * Make a module
+     * @param string[] $args
      *
      * @subcommand make-module
-     * @throws ExitException
      */
     public function makeModule($args): void
     {
@@ -198,20 +201,26 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
         if (!mkdir($directory) && !is_dir($directory)) {
             throw new RuntimeException(sprintf('Directory "%s" was not created', $directory));
         }
-        if (!mkdir($concurrentDirectory = $directory . "/Controllers") && !is_dir($concurrentDirectory)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+
+        $concurrentDirectory = $directory . '/Controllers';
+        if (!mkdir($concurrentDirectory) && !is_dir($concurrentDirectory)) {
+            throw new RuntimeException('Directory "Controllers" was not created');
         }
-        if (!mkdir($concurrentDirectory = $directory . "/Models") && !is_dir($concurrentDirectory)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+
+        $concurrentDirectory = $directory . '/Models';
+        if (!mkdir($concurrentDirectory) && !is_dir($concurrentDirectory)) {
+            throw new RuntimeException('Directory "Models" was not created');
         }
-        if (!mkdir($concurrentDirectory = $directory . "/views") && !is_dir($concurrentDirectory)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+
+        $concurrentDirectory = $directory . '/views';
+        if (!mkdir($concurrentDirectory) && !is_dir($concurrentDirectory)) {
+            throw new RuntimeException('Directory "views" was not created');
         }
 
         $namespace = "Modules\\{$name}";
         $classname = $name;
 
-        $path = $directory . "/" . $classname . '.php';
+        $path = $directory . '/' . $classname . '.php';
 
         $moduleFile = fopen($path, 'wb');
 
@@ -227,18 +236,20 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
     }
 
     /**
-     * Make component
+     * Make a component
+     *
+     * @param string[] $args
+     * @param string[] $assocArgs
      *
      * @subcommand make-component
-     * @throws ExitException
      */
-    public function makeComponent(?array $args, ?array $assocArgs): void
+    public function makeComponent(array $args, array $assocArgs): void
     {
         $name = OffbeatScaffoldHelper::filterName($args[0]);
 
         $supports = $assocArgs['supports'] ?? null;
         if (preg_match('/[^a-zA-Z0-9 ,]/', $supports)) {
-            WP_CLI::error("Supports contains not valid charaters");
+            WP_CLI::error('Supports contains not valid charaters');
             exit;
         }
 
@@ -256,7 +267,7 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
             $modulePath = get_template_directory() . '/modules/' . $module . '/';
 
             if (preg_match('/[^a-zA-Z0-9]/', $module) || preg_match('/^\d/', $module) || !is_dir($modulePath)) {
-                WP_CLI::error("Module does not exists");
+                WP_CLI::error('Module does not exists');
                 exit;
             }
 
@@ -277,7 +288,7 @@ final class OffbeatScaffoldingCommands extends WP_CLI_Command
         }
 
         if (file_exists($path)) {
-            WP_CLI::error("Component already exists");
+            WP_CLI::error('Component already exists');
             exit;
         }
 

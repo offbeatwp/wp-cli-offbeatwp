@@ -5,60 +5,56 @@ namespace OffbeatCLI\Helpers;
 use OffbeatCLI\OffbeatScaffoldingCommands;
 use RuntimeException;
 use WP_CLI;
-use WP_CLI\ExitException;
 
 final class OffbeatScaffoldHelper
 {
-    /** @throws ExitException */
     public static function filterName(?string $name): string
     {
         if (empty($name)) {
-            WP_CLI::error("Please define a name");
+            WP_CLI::error('Please define a name');
             exit;
         }
 
         if (preg_match('/[^a-zA-Z0-9]/', $name)) {
-            WP_CLI::error("Name contains not supported characters");
+            WP_CLI::error('Name contains not supported characters');
             exit;
         }
 
         if (preg_match('/^\d/', $name)) {
-            WP_CLI::error("Name can not start with a number");
+            WP_CLI::error('Name can not start with a number');
             exit;
         }
 
         return ucfirst($name);
     }
 
-    /** @throws ExitException */
     public static function filterCpt(?string $customType, string $kind): string
     {
         if (empty($customType)) {
-            WP_CLI::error("Please define a custom " . $kind . " with --" . $kind . "=\"\"");
+            WP_CLI::error('Please define a custom ' . $kind . ' with --' . $kind . "=\"\"");
             exit;
         }
 
-        if (strpos($customType, " ")) {
-            WP_CLI::error("No spaces are allowed in custom post/taxonomy types");
+        if (strpos($customType, ' ')) {
+            WP_CLI::error('No spaces are allowed in custom post/taxonomy types');
         }
 
         if (strlen($customType) > 20) {
-            WP_CLI::error("Custom post/taxonomy names should not exceed 20 characters");
+            WP_CLI::error('Custom post/taxonomy names should not exceed 20 characters');
             exit;
         }
 
         return strtolower($customType);
     }
 
-    /** @throws ExitException */
-    public static function makeCustomType($args, $assocArgs, $kind): void
+    public static function makeCustomType(array $args, array $assocArgs, string $kind): void
     {
         $name = self::filterName($args[0]);
         $cpt = self::filterCpt($assocArgs[$kind], $kind);
 
         $directory = get_template_directory() . '/app/Models/';
 
-        $namespace = "App\Models";
+        $namespace = 'App\Models';
         $classname = $name . 'Model';
 
         $path = $directory . $classname . '.php';
@@ -69,7 +65,7 @@ final class OffbeatScaffoldHelper
             $modulePath = get_template_directory() . '/modules/' . $module . '/';
 
             if (preg_match('/[^a-zA-Z0-9]/', $module) || preg_match('/^\d/', $module) || !is_dir($modulePath)) {
-                WP_CLI::error("Module does not exists");
+                WP_CLI::error('Module does not exists');
                 exit;
             }
 
@@ -89,7 +85,7 @@ final class OffbeatScaffoldHelper
         }
 
         if (file_exists($path)) {
-            WP_CLI::error("Model already exists");
+            WP_CLI::error('Model already exists');
             exit;
         }
 
