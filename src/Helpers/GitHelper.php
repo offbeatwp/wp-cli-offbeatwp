@@ -36,6 +36,8 @@ final class GitHelper
 
         // Delete leftovers
         self::removeDirectoryRecursively($tempDirPath);
+
+        WP_CLI::success('Fetch complete!');
     }
 
     /**
@@ -58,9 +60,9 @@ final class GitHelper
                 } elseif (file_exists($targetPath)) {
                     WP_CLI::log("Skipped: {$file}");
                 } elseif (rename($sourcePath, $targetPath)) {
-                    WP_CLI::log("Added: {$file}");
+                    WP_CLI::log(WP_CLI::colorize("%cAdded:%n {$targetPath}"));
                 } else {
-                    WP_CLI::error("Failed to move: {$file}");
+                    WP_CLI::error("%yFailed to move:%n {$targetPath}");
                 }
             }
         }
