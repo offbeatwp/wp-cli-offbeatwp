@@ -12,15 +12,15 @@ final class GitHelper
         // Pull from git
         $cwd = getcwd();
         $repositoryUrl = 'http://git.raow.work:88/raow/offbeat-base-module-repo.git';
-        $tempDir = $cwd . '/temp';
+        $tempDirPath = $cwd . '/temp';
 
-        exec("git clone --depth 1 --no-checkout {$repositoryUrl} {$tempDir}");
+        exec("git clone --depth 1 --no-checkout {$repositoryUrl} {$tempDirPath}");
 
-        if (!is_dir($tempDir) && !mkdir($tempDir) && !is_dir($tempDir)) {
-            throw new RuntimeException('Directory "' . $tempDir .'" was not created');
+        if (!is_dir($tempDirPath) && !mkdir($tempDirPath) && !is_dir($tempDirPath)) {
+            throw new RuntimeException('Directory "' . $tempDirPath .'" was not created');
         }
 
-        chdir($tempDir);
+        chdir($tempDirPath);
 
         exec('git config core.sparseCheckout true');
 
@@ -32,10 +32,10 @@ final class GitHelper
         chdir($cwd);
 
         // Move from temp to src
-        self::moveDirContent($tempDir . '/' . $name, $cwd);
+        self::moveDirContent($tempDirPath . '/' . $name, $cwd);
 
         // Delete leftovers
-        self::removeDirectoryRecursively($tempDir);
+        self::removeDirectoryRecursively($tempDirPath);
     }
 
     /**
