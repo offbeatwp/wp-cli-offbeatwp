@@ -31,9 +31,14 @@ final class GitHelper
 
         chdir($cwd);
 
-        // Emit readme info in console
-        $readmePath = $tempDirPath . '/' . $name . '/readme.md';
-        $readmeLines = file($readmePath) ?: [];
+        // Read and delete README if such a file exists
+        $readmePath = $tempDirPath . '/' . $name . '/README.md';
+        $readmeLines = [];
+
+        if (file_exists($readmePath)) {
+            $readmeLines = $readmePath ?: [];
+            unlink($readmePath);
+        }
 
         // Move from temp to src
         self::moveDirContent($tempDirPath . '/' . $name, $cwd);
