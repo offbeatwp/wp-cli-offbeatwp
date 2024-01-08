@@ -31,6 +31,14 @@ final class GitHelper
 
         chdir($cwd);
 
+        // Emit readme info in console
+        $readmePath = $tempDirPath . '/' . $name . '/readme.md';
+        if (file_exists($readmePath)) {
+            foreach (file($readmePath) as $line) {
+                WP_CLI::log(WP_CLI::colorize('%m' . $line . '%n'));
+            }
+        }
+
         // Move from temp to src
         self::moveDirContent($tempDirPath . '/' . $name, $cwd);
 
