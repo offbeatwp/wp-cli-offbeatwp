@@ -33,17 +33,18 @@ final class GitHelper
 
         // Emit readme info in console
         $readmePath = $tempDirPath . '/' . $name . '/readme.md';
-        if (file_exists($readmePath)) {
-            foreach (file($readmePath) as $line) {
-                WP_CLI::log(WP_CLI::colorize('%m' . $line . '%n'));
-            }
-        }
+        $readmeLines = file($readmePath) ?: [];
 
         // Move from temp to src
         self::moveDirContent($tempDirPath . '/' . $name, $cwd);
 
         // Delete leftovers
         self::removeDirectoryRecursively($tempDirPath);
+
+        // Emit info
+        foreach ($readmeLines as $line) {
+            WP_CLI::log(WP_CLI::colorize('%m' . str_replace(["\r", "\n"], '', $line) . '%n'));
+        }
 
         WP_CLI::success('Fetch complete!');
     }
