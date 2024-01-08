@@ -36,7 +36,7 @@ final class GitHelper
         $readmeLines = [];
 
         if (file_exists($readmePath)) {
-            $readmeLines = $readmePath ?: [];
+            $readmeLines = file($readmePath) ?: [];
             unlink($readmePath);
         }
 
