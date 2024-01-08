@@ -48,7 +48,7 @@ final class GitHelper
 
         // Emit info
         foreach ($readmeLines as $line) {
-            WP_CLI::log(WP_CLI::colorize('%m' . str_replace(["\r", "\n"], '', $line) . '%n'));
+            WP_CLI::log(WP_CLI::colorize('%c' . str_replace(["\r", "\n"], '', $line) . '%n'));
         }
 
         WP_CLI::success('Fetch complete!');
